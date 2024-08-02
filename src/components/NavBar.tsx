@@ -13,33 +13,19 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Image from 'next/image';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import NextAuthDialog from 'next-auth-mui';
 import Link from 'next/link';
 import Head from 'next/head';
-
-const pages = [
-  {
-    text: 'Dashboard',
-    route: '/dashboard',
-  },
-  {
-    text: 'Transactions',
-    route: '/transactions',
-  },
-  {
-    text: 'Insights',
-    route: '/insights',
-  },
-];
+import { useRouter } from 'next/router';
+import { hexToRGBA } from '@/helpers/colors';
 
 export function NavBar(props) {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const { data, status } = useSession();
-
-  console.log('data', data);
+  const router = useRouter();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -55,6 +41,27 @@ export function NavBar(props) {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const pages = [
+    {
+      text: 'Dashboard',
+      route: '/dashboard',
+      isVisible: status === 'authenticated',
+      isActive: router.pathname === '/dashboard',
+    },
+    {
+      text: 'Transactions',
+      route: '/transactions',
+      isVisible: status === 'authenticated',
+      isActive: router.pathname === '/transactions',
+    },
+    {
+      text: 'Insights',
+      route: '/insights',
+      isVisible: status === 'authenticated',
+      isActive: router.pathname === '/insights',
+    },
+  ];
 
   const settings = [
     ...(status === 'authenticated'
@@ -103,7 +110,7 @@ export function NavBar(props) {
               </Link>
             </Box>
 
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -132,20 +139,30 @@ export function NavBar(props) {
                   display: { xs: 'block', md: 'none' },
                 }}
               >
-                {pages.map((page) => (
-                  <MenuItem key={page.text} onClick={handleCloseNavMenu}>
-                    <Link href={page.route}>
+                {pages.map((page) => {
+                  if (!page.isVisible) {
+                    return null;
+                  }
+                  return (
+                    <MenuItem
+                      key={page.text}
+                      href={page.route}
+                      component={Link}
+                      onClick={handleCloseNavMenu}
+                      selected={page.isActive}
+                    >
                       <Typography textAlign="center">{page.text}</Typography>
-                    </Link>
-                  </MenuItem>
-                ))}
+                    </MenuItem>
+                  );
+                })}
               </Menu>
             </Box>
 
             {/* Mobile Logo */}
             <Box
               sx={{
-                display: { xs: 'flex', md: 'none' },
+                flexGrow: 1,
+                display: { xs: 'flex', md: 'none', justifyContent: 'center' },
               }}
             >
               <Link href="/">
@@ -160,17 +177,35 @@ export function NavBar(props) {
             </Box>
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {pages.map((page) => (
-                <Button
-                  href={page.route}
-                  LinkComponent={Link}
-                  key={page.text}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
-                >
-                  {page.text}
-                </Button>
-              ))}
+              {pages.map((page) => {
+                if (!page.isVisible) {
+                  return null;
+                }
+
+                const backgroundColorWithOpacity = hexToRGBA('#ffffff', 0.3);
+
+                return (
+                  <Button
+                    href={page.route}
+                    LinkComponent={Link}
+                    key={page.text}
+                    onClick={handleCloseNavMenu}
+                    sx={{
+                      my: 2,
+                      color: 'white',
+                      display: 'block',
+                      ...(page.isActive && { backgroundColor: backgroundColorWithOpacity, color: 'white' }),
+                      ...(page.isActive && { ':hover': { backgroundColor: backgroundColorWithOpacity } }),
+                      ...(page.isActive && {
+                        '&.Mui-disabled': { backgroundColor: backgroundColorWithOpacity, color: 'white' },
+                      }),
+                    }}
+                    disabled={page.isActive}
+                  >
+                    {page.text}
+                  </Button>
+                );
+              })}
             </Box>
 
             <Box sx={{ flexGrow: 0 }}>
@@ -221,6 +256,9 @@ export function NavBar(props) {
         titleText="Login"
         DialogTitleProps={{
           textAlign: 'center',
+        }}
+        signInOptions={{
+          callbackUrl: '/dashboard',
         }}
       />
     </>
