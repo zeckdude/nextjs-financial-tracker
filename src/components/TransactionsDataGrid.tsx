@@ -28,7 +28,8 @@ export function TransactionsDataGrid({ onClickEditTransaction, onClickDeleteTran
     {
       field: 'type',
       headerName: 'Type',
-      width: 150,
+      flex: 0,
+      minWidth: 100,
       renderCell: (params) => capitalize(params.value),
     },
     {
@@ -36,33 +37,37 @@ export function TransactionsDataGrid({ onClickEditTransaction, onClickDeleteTran
       type: 'number',
       headerName: 'Amount',
       headerAlign: 'left',
-      width: 150,
+      flex: 0,
+      minWidth: 100,
       renderCell: (params) => `€${params.value}`,
       align: 'left',
     },
     {
       field: 'date',
       headerName: 'Date',
-      width: 150,
+      flex: 0,
+      minWidth: 150,
       renderCell: (params) => dayjs.unix(params.value).format('DD/MM/YYYY'),
     },
     {
       field: 'category',
       headerName: 'Category',
-      width: 150,
+      flex: 0,
+      minWidth: 150,
       renderCell: (params) => capitalize(params.value),
     },
     {
       field: 'description',
       headerName: 'Description',
-      width: 150,
+      flex: 1,
       renderCell: (params) => (params.value === '' ? <i>N/A</i> : params.value),
     },
     {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 100,
+      flex: 0,
+      minWidth: 100,
       cellClassName: 'actions',
       getActions: ({ row }) => {
         return [
@@ -99,6 +104,7 @@ export function TransactionsDataGrid({ onClickEditTransaction, onClickDeleteTran
   return (
     <Box sx={{ mt: 3 }}>
       <DataGrid
+        density="compact"
         rows={rows}
         columns={columns}
         disableRowSelectionOnClick

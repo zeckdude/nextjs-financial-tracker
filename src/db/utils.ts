@@ -13,7 +13,7 @@ export const deleteTransaction = async (transaction: DbTransaction) => {
 // Utility function to get a random value from an array
 const getRandomElement = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-// Function to generate a random date within the last 12 months, or for a specific month
+// Function to generate a random date within the last n months, or for a specific month
 const generateRandomDateForMonth = (month: number, year: number): number => {
   const start = new Date(year, month, 1).getTime();
   const end = new Date(year, month + 1, 0).getTime(); // Last day of the month
@@ -45,8 +45,8 @@ const generateRandomTransaction = (month: number, year: number): Transaction => 
   };
 };
 
-// Function to add mock data to Dexie with the specified conditions
-export const addMockData = async () => {
+// Function to add mock data to Dexie with the specified conditions over the last n months
+export const addMockData = async ({ monthsToGenerate }: { monthsToGenerate: number }) => {
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
@@ -63,8 +63,8 @@ export const addMockData = async () => {
     transactionsByMonthYear[key].push(transaction);
   }
 
-  // Generate transactions for the last 12 months
-  for (let i = 0; i < 12; i++) {
+  // Generate transactions for the last n months
+  for (let i = 0; i < monthsToGenerate; i++) {
     const month = (currentMonth - i + 12) % 12;
     const year = currentMonth - i < 0 ? currentYear - 1 : currentYear;
     const key = `${year}-${month}`;

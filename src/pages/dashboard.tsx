@@ -4,7 +4,7 @@ import { Layout } from '@/components/Layout';
 import { GetServerSidePropsContext } from 'next';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/db';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Decimal from 'decimal.js';
 import dynamic from 'next/dynamic';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
@@ -144,6 +144,50 @@ export default function Dashboard() {
     [transactionsTotal]
   );
 
+  enum MonthDirection {
+    Next = 'next',
+    Previous = 'previous',
+  }
+
+  const handleMonthChange = useCallback(
+    (direction: MonthDirection) => {
+      if (direction === MonthDirection.Next) {
+        if (monthToDisplay === 11) {
+          setMonthToDisplay(0);
+          setYearToDisplay(yearToDisplay + 1);
+        } else {
+          setMonthToDisplay(monthToDisplay + 1);
+        }
+      } else {
+        if (monthToDisplay === 0) {
+          setMonthToDisplay(11);
+          setYearToDisplay(yearToDisplay - 1);
+        } else {
+          setMonthToDisplay(monthToDisplay - 1);
+        }
+      }
+    },
+    [monthToDisplay, yearToDisplay]
+  );
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        handleMonthChange(MonthDirection.Previous);
+      } else if (event.key === 'ArrowRight') {
+        handleMonthChange(MonthDirection.Next);
+      }
+    },
+    [handleMonthChange]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   return (
     <Layout pageName="Dashboard">
       <Typography
@@ -157,17 +201,7 @@ export default function Dashboard() {
         Dashboard page content
       </Typography>
       <Box display="flex" alignItems="center" justifyContent="center" gap="20px" mb={2}>
-        <IconButton
-          onClick={() => {
-            if (monthToDisplay === 0) {
-              setMonthToDisplay(11);
-              setYearToDisplay(yearToDisplay - 1);
-            } else {
-              setMonthToDisplay(monthToDisplay - 1);
-            }
-          }}
-          aria-label="last month"
-        >
+        <IconButton onClick={() => handleMonthChange(MonthDirection.Previous)} aria-label="last month">
           <ChevronLeftIcon />
         </IconButton>
         <Typography
@@ -179,17 +213,7 @@ export default function Dashboard() {
         >
           {monthYearString}
         </Typography>
-        <IconButton
-          onClick={() => {
-            if (monthToDisplay === 11) {
-              setMonthToDisplay(0);
-              setYearToDisplay(yearToDisplay + 1);
-            } else {
-              setMonthToDisplay(monthToDisplay + 1);
-            }
-          }}
-          aria-label="next month"
-        >
+        <IconButton onClick={() => handleMonthChange(MonthDirection.Next)} aria-label="next month">
           <ChevronRightIcon />
         </IconButton>
       </Box>

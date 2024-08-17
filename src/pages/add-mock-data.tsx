@@ -5,7 +5,9 @@ import { addMockData } from '@/db/utils';
 
 export default function AddMockDataPage() {
   useEffect(() => {
-    addMockData();
+    addMockData({
+      monthsToGenerate: 36,
+    });
   }, []);
 
   return (
