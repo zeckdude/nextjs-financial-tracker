@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
+import AppBar, { AppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -11,16 +11,16 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
+// @ts-ignore
 import NextAuthDialog from 'next-auth-mui';
 import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { hexToRGBA } from '@/helpers/colors';
 
-export function NavBar(props) {
+export function NavBar(props: AppBarProps) {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
