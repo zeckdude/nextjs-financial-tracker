@@ -218,6 +218,7 @@ export default function Dashboard() {
         </IconButton>
       </Box>
       {typeof window !== 'undefined' && (
+        // @ts-ignore
         <Chart options={chartConfig.options} series={chartConfig.series} type="bar" width="100%" />
       )}
       <Typography>Total Income: ${transactionsTotal.income.toFixed(2)}</Typography>
